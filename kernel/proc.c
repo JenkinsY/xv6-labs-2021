@@ -304,6 +304,7 @@ fork(void)
   safestrcpy(np->name, p->name, sizeof(p->name));
 
   pid = np->pid;
+  np->mask = p->mask; // 复制父进程的mask
 
   release(&np->lock);
 
@@ -653,4 +654,17 @@ procdump(void)
     printf("%d %s %s", p->pid, state, p->name);
     printf("\n");
   }
+}
+
+int count_process(void) {
+  int cnt = 0;
+  struct proc *p;
+
+  for (p = proc; p < &proc[NPROC]; p++) {
+    acquire(&p->lock);
+    if (p->state != UNUSED) cnt++;
+    release(&p->lock);
+  }
+
+  return cnt;
 }
